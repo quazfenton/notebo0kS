@@ -1,0 +1,59 @@
+.
+├── README.md
+├── pyproject.toml
+├── .gitignore
+├── configs/
+│   ├── worldmodel.yaml
+│   └── slotprog.yaml
+├── notebooks/
+│   ├── 01_world_model_active_inference.ipynb
+│   ├── 02_world_model_comm_residuals.ipynb
+│   ├── 03_slot_program_clevr.ipynb
+│   └── 04_comm_sender_receiver.ipynb
+├── scripts/
+│   ├── synth_generate_clevr.py
+│   ├── train_worldmodel.py
+│   ├── train_slotprog.py
+│   └── run_ablation_suite.py
+├── src/
+│   ├── __init__.py
+│   ├── common/
+│   │   ├── __init__.py
+│   │   ├── losses.py
+│   │   ├── metrics.py
+│   │   ├── schedulers.py
+│   │   ├── visualization.py
+│   │   └── checkpoint.py
+│   ├── data/
+│   │   ├── __init__.py
+│   │   ├── ode_systems.py
+│   │   ├── physics_envs.py
+│   │   ├── clevr_synth.py
+│   │   ├── comm_channel.py
+│   │   └── transforms.py
+│   ├── eval/
+│   │   ├── __init__.py
+│   │   └── evaluators.py
+│   ├── novelty/
+│   │   ├── __init__.py
+│   │   ├── thresholds.py
+│   │   └── perturb.py
+│   ├── world_model/
+│   │   ├── __init__.py
+│   │   ├── encdec.py
+│   │   ├── dynamics.py
+│   │   ├── active_inference.py
+│   │   └── train.py
+│   └── slot_program/
+│       ├── __init__.py
+│       ├── slot_attention.py
+│       ├── grammar.py
+│       ├── interpreter.py
+│       ├── program_head.py
+│       ├── comm_games.py
+│       └── train.py
+└── tests/
+    ├── test_symplectic.py
+    ├── test_interpreter.py
+    ├── test_slot_attention.py
+    └── test_eig.py

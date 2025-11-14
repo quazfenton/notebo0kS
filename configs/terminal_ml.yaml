@@ -1,0 +1,23 @@
+defaults:
+  - override hydra/job_logging: disabled
+
+model_name: google/flan-t5-small
+epochs: 1
+batch_size: 8
+lr: 5e-5
+warmup_steps: 50
+max_source_len: 256
+max_target_len: 128
+save_dir: outputs/terminal_ml
+task_col: task
+command_col: command
+
+# Logging
+wandb_enable: false
+wandb_project: terminal-ml
+wandb_run_name: null
+
+# Offline RL fine-tune
+rl_enable: false
+rl_epochs: 1
+rl_weight: 0.2

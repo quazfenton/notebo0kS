@@ -1,0 +1,10 @@
+__pycache__/
+.venv/
+outputs/
+wandb/
+*.pt
+*.ckpt
+*.png
+*.gif
+.DS_Store
+*.ipynb_checkpoints

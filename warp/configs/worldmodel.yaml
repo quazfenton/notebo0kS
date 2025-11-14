@@ -1,0 +1,58 @@
+defaults:
+  - override hydra/job_logging: disabled
+
+seed: 42
+workdir: outputs/worldmodel
+
+# Tiny mode for CI/smoke
+tiny: false
+
+# Data / environment
+env:
+  type: lorenz  # lorenz | pendulum | cartpole (stub)
+  dt: 0.01
+  horizon: 200
+  batch_size: 32
+  train_steps: 10000
+
+# Model
+model:
+  z_dim: 8
+  x_dim: 3
+  encoder_hidden: 128
+  decoder_hidden: 128
+  hamiltonian_hidden: 128
+  symplectic: true
+  dropout_p: 0.0
+
+# Loss weights
+loss:
+  recon: 1.0
+  phys: 0.1
+  kl: 0.0
+  mdL_bits: 0.0
+  info_gain: 0.1
+
+eig:
+  use_ensemble: false
+  ensemble_size: 5
+  weight_noise_scale: 0.01
+  use_dropout: false
+  mc_samples: 8
+  dropout_p: 0.1
+
+optim:
+  lr: 3e-4
+  wd: 1e-4
+  steps: 50000
+  grad_clip: 1.0
+
+novelty:
+  enable: true
+  entropy_quantile: 0.85
+  perturb_scale: 0.05
+
+logging:
+  every: 100
+  tb: true
+  ckpt_every: 1000

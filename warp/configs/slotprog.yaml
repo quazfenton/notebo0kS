@@ -1,0 +1,72 @@
+defaults:
+  - override hydra/job_logging: disabled
+
+seed: 123
+workdir: outputs/slotprog
+
+tiny: false
+
+data:
+  clevr:
+    out_dir: data/clevr_tiny
+    n_train: 20000
+    n_val: 2000
+    min_objs: 2
+    max_objs: 5
+    img_size: 64
+    shapes: [circle, square, triangle]
+
+model:
+  slots: 5
+  slot_dim: 64
+  iters: 3
+  program_vocab: 64
+  program_len_max: 32
+  gumbel_tau: 1.0
+
+loss:
+  recon: 1.0
+  slot_orth: 0.1
+  prog_len_penalty: 0.01
+  entropy_bonus: 0.001
+
+optim:
+  lr: 3e-4
+  wd: 1e-4
+  steps: 80000
+
+novelty:
+  enable: true
+  posterior_entropy_q: 0.85
+  mutate_prob: 0.1
+
+curriculum:
+  enable: true
+  inc_min_objs: 1
+  inc_max_objs: 1
+  inc_img_size: 0
+  max_objs_cap: 7
+  img_size_cap: 96
+  regen_n: 256
+  bucketed:
+    enable: false
+    levels: 3
+    per_level_n: 256
+    base_min_objs: 2
+    base_max_objs: 5
+    base_img_size: 64
+    obj_step: 1
+    img_step: 0
+
+comm:
+  enable: true
+  channel_snr_db: 20.0
+  code_len: 16
+  snr_step_db: 3.0
+  snr_min_db: 0.0
+  snr_max_db: 40.0
+
+logging:
+  every: 100
+  tb: true
+  ckpt_every: 1000
