@@ -62,54 +62,61 @@ np.random.seed(42)
 # %% [markdown]
 # ## Dataset Ingestion Pipelines
 class DataIngestion:
-"""
-Production dataset ingestion for SHPM training.
-Supports PubChem, ChEMBL, PubMed, Materials Project, and negative results corpora.
-"""
-def init(self, pubmed_email: str = "your.email@example.com"):
-self.pubmed_email = pubmed_email
-Entrez.email = pubmed_email  # For PubMed compliance
-self.chembl = chembl_client
-self.mp_rester = MPRester("your_mp_api_key")  # Get key from Materials Project
-def ingest_pubchem(self, query: str, max_records: int = 1000) -> List[Dict]:
-"""Ingest compounds and bioassays from PubChem."""
-compounds = pcp.get_compounds(query, 'name')
-data = []
-for cmpd in compounds[:max_records]:
-assays = pcp.get_assays_for_cid(cmpd.cid, 'bioactivity')
-for assay in assays:
-data.append({
-'cid': cmpd.cid,
-'smiles': cmpd.isomeric_smiles,
-'assay': assay.cid,
-'outcome': assay.value  # e.g., IC50
-})
-return data
-def ingest_chembl(self, target_name: str) -> pd.DataFrame:
-"""Ingest bioactivity data for a target."""
-target = self.chembl.target.filter(pref_name=target_name).only(['chembl_id'])
-activities = self.chembl.activity.filter(target_chembl_id=target[0].chembl_id).only(['molecule_chembl_id', 'standard_value', 'standard_units'])
-df = pd.DataFrame.from_records(activities)
-return df
-def ingest_pubmed(self, query: str, max_results: int = 100) -> List[Dict]:
-"""Ingest full-text abstracts from PubMed (for methods/outcomes extraction)."""
-handle = Entrez.esearch(db="pubmed", term=query, retmax=max_results)
-record = Entrez.read(handle)
-pids = record["IdList"]
-data = []
-for pid in pids:
-fetch_handle = Entrez.efetch(db="pubmed", id=pid, rettype="abstract", retmode="text")
-abstract = fetch_handle.read()
-data.append({'pmid': pid, 'abstract': abstract})
-return data
-def ingest_materials_project(self, formula: str) -> Dict:
-"""Ingest material properties."""
-docs = self.mp_rester.materials.summary.search(formula=formula)
-return [doc.dict() for doc in docs]
-def ingest_negative_results(self, query: str = "negative results") -> List[Dict]:
-"""Ingest from ReDO or similar negative results DB (placeholder: use PubMed filter)."""
-# Placeholder: Filter PubMed for "null hypothesis" or similar
-return self.ingest_pubmed(f"{query} AND null", max_results=50)
+    """
+    Production dataset ingestion for SHPM training.
+    Supports PubChem, ChEMBL, PubMed, Materials Project, and negative results corpora.
+    """
+    def __init__(self, pubmed_email: str = "your.email@example.com"):
+        self.pubmed_email = pubmed_email
+        Entrez.email = pubmed_email  # For PubMed compliance
+        self.chembl = chembl_client
+        self.mp_rester = MPRester("your_mp_api_key")  # Get key from Materials Project
+    
+    def ingest_pubchem(self, query: str, max_records: int = 1000) -> List[Dict]:
+        """Ingest compounds and bioassays from PubChem."""
+        compounds = pcp.get_compounds(query, 'name')
+        data = []
+        for cmpd in compounds[:max_records]:
+            assays = pcp.get_assays_for_cid(cmpd.cid, 'bioactivity')
+            for assay in assays:
+                data.append({
+                    'cid': cmpd.cid,
+                    'smiles': cmpd.isomeric_smiles,
+                    'assay': assay.cid,
+                    'outcome': assay.value  # e.g., IC50
+                })
+        return data
+    
+    def ingest_chembl(self, target_name: str) -> pd.DataFrame:
+        """Ingest bioactivity data for a target."""
+        target = self.chembl.target.filter(pref_name=target_name).only(['chembl_id'])
+        activities = self.chembl.activity.filter(target_chembl_id=target[0].chembl_id).only(['molecule_chembl_id', 'standard_value', 'standard_units'])
+        df = pd.DataFrame.from_records(activities)
+        return df
+    
+    def ingest_pubmed(self, query: str, max_results: int = 100) -> List[Dict]:
+        """Ingest full-text abstracts from PubMed (for methods/outcomes extraction)."""
+        handle = Entrez.esearch(db="pubmed", term=query, retmax=max_results)
+        record = Entrez.read(handle)
+        pids = record["IdList"]
+        data = []
+        for pid in pids:
+            fetch_handle = Entrez.efetch(db="pubmed", id=pid, rettype="abstract", retmode="text")
+            abstract = fetch_handle.read()
+            data.append({'pmid': pid, 'abstract': abstract})
+        return data
+    
+    def ingest_materials_project(self, formula: str) -> Dict:
+        """Ingest material properties."""
+        docs = self.mp_rester.materials.summary.search(formula=formula)
+        return [doc.dict() for doc in docs]
+    
+    def ingest_negative_results(self, query: str = "negative results") -> List[Dict]:
+        """Ingest from ReDO or similar negative results DB (placeholder: use PubMed filter)."""
+        # Placeholder: Filter PubMed for "null hypothesis" or similar
+        return self.ingest_pubmed(f"{query} AND null", max_results=50)
+
+
 # Example usage
 # ingester = DataIngestion()
 # pubchem_data = ingester.ingest_pubchem("aspirin")
@@ -117,11 +124,11 @@ return self.ingest_pubmed(f"{query} AND null", max_results=50)
 # %% [markdown]
 # ## 1. Base Primitives and Knowledge Representation (Neo4j Backend)
 class Neo4jKnowledgeGraph:
-"""
-Production KG backend using Neo4j for structured reasoning.
-Supports vector embeddings for entities/relations.
-"""
-def init(self, uri: str, user: str, password: str):
+    """
+    Production KG backend using Neo4j for structured reasoning.
+    Supports vector embeddings for entities/relations.
+    """
+    def __init__(self, uri: str, user: str, password: str):
 self.driver = GraphDatabase.driver(uri, auth=(user, password))
 self._create_vector_index()  # For embeddings
 def close(self):
